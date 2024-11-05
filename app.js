@@ -10,7 +10,7 @@ const app = express();
 app.use(cookieParser());
 
 app.use(cors({
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:3000","mern-auth-frontend5.vercel.app"],
     credentials: true, //자격증명 true로 해서 쿠키 전달 가능
 })
 );

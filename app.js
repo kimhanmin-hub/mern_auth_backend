@@ -14,8 +14,10 @@ app.use(
     origin: [
         "http://localhost:3000",
         "https://mern-auth-frontend5.vercel.app",
+        "https://mern-auth-frontend5-git-main-kimhanmins-projects.vercel.app"
     ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 })
 );
 

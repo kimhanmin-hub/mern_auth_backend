@@ -4,6 +4,7 @@ const catchAsync = require("../utils/catchAsync");
 const sendEmail = require("../utils/email");
 const generateOTP = require("../utils/generateOTP");
 const jwt = require("jsonwebtoken");
+const mongoose = require('mongoose');
 
 
 // JWT 토큰 생성
@@ -49,7 +50,13 @@ exports.signup = catchAsync(async (req, res, next) => {
         const { email, password, passwordConfirm, username } = req.body;
         console.log('회원가입 요청 데이터:', { email, username });
 
-        const existingUser = await User.findOne({ email });
+        // MongoDB 연결 상태 확인
+        if (mongoose.connection.readyState !== 1) {
+            console.error('MongoDB 연결 상태:', mongoose.connection.readyState);
+            return next(new AppError('데이터베이스 연결 오류', 500));
+        }
+
+        const existingUser = await User.findOne({ email }).maxTimeMS(5000);
         if (existingUser) {
             return next(new AppError("이미 존재하는 이메일입니다.", 400));
         }
@@ -243,7 +250,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     user.resetPasswordOTP = undefined;
     user.resetPasswordOTPExpires = undefined;
 
-    await user.save();
+    await user.save({validateBeforeSave:false});
 
     createSendToken(user, 200, res, '비밀번호 재설정이 완료되었습니다.');
 });

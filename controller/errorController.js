@@ -13,8 +13,18 @@ module.exports = (err,req,res,next)=>{
     err.status = err.status || "에러";
 
     // MongoDB 연결 관련 에러 특별 처리
-    if (err.name === 'MongooseServerSelectionError') {
+    if (err.name === 'MongooseServerSelectionError' || 
+        err.name === 'MongooseError' || 
+        err.name === 'MongoError' ||
+        err.name === 'MongoNetworkError') {
+        console.error('MongoDB 상세 에러:', {
+            name: err.name,
+            message: err.message,
+            code: err.code,
+            stack: err.stack
+        });
         err.message = '데이터베이스 연결에 실패했습니다. 잠시 후 다시 시도해주세요.';
+        err.statusCode = 500;
     }
 
     res.status(err.statusCode).json({

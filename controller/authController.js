@@ -45,39 +45,38 @@ const createSendToken = (user, statusCode, res, message) => {
 };
 //회원 가입 처리 함수
 exports.signup = catchAsync(async (req, res, next) => {
-    const { email, password, passwordConfirm, username } = req.body;
+    try {
+        const { email, password, passwordConfirm, username } = req.body;
+        console.log('회원가입 요청 데이터:', { email, username });
 
-    const existingUser = await User.findOne({ email });
-    //중복 체크
-    if (existingUser) return next(new AppError("이미 존재하는 이메일입니다.", 400));
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return next(new AppError("이미 존재하는 이메일입니다.", 400));
+        }
 
-    const otp = generateOTP();
+        const otp = generateOTP();
+        console.log('생성된 OTP:', otp);
 
-    const otpExpires = Date.now() + 24 * 60 * 60 * 1000;
+        const newUser = await User.create({
+            username,
+            email,
+            password,
+            passwordConfirm,
+            otp,
+            otpExpires: Date.now() + 24 * 60 * 60 * 1000
+        });
 
-    const newUser = await User.create({
-        username,
-        email,
-        password,
-        passwordConfirm,
-        otp,
-        otpExpires,
-    });
-
-    try{
         await sendEmail({
             email: newUser.email,
             subject: "회원 가입 인증 메일",
             html: `<h1>인증번호는 ${otp}입니다.</h1>`
-        })
+        });
 
         createSendToken(newUser, 200, res, "회원 가입 성공");
-
-    }catch (error){
-        await User.findByIdAndDelete(newUser.id);
-        return next(new AppError("이메일 전송에 실패하였습니다. 다시 시도해주세요",500))
+    } catch (error) {
+        console.error('회원가입 처리 중 에러:', error);
+        return next(new AppError(error.message || "회원가입 처리 중 오류가 발생했습니다.", 500));
     }
-
 });
 
 exports.verifyAccount = catchAsync(async (req, res, next) => {

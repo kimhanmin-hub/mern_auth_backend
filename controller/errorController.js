@@ -27,10 +27,23 @@ module.exports = (err,req,res,next)=>{
         err.statusCode = 500;
     }
 
-    res.status(err.statusCode).json({
+    // 이메일 전송 관련 에러 처리 추가
+    if (err.message && err.message.includes('email')) {
+        err.message = '이메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.';
+        err.statusCode = 500;
+    }
+
+    // 개발 환경에서만 상세 에러 정보 전송
+    const errorResponse = {
         status: err.status,
         message: err.message,
-        error: process.env.NODE_ENV === 'development' ? err : {}
-    });
+        error: process.env.NODE_ENV === 'development' ? {
+            stack: err.stack,
+            name: err.name,
+            code: err.code
+        } : {}
+    };
+
+    res.status(err.statusCode).json(errorResponse);
 };
 

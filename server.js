@@ -18,8 +18,7 @@ const connectDB = async () => {
             useUnifiedTopology: true,
             serverSelectionTimeoutMS: 30000,
             socketTimeoutMS: 45000,
-            connectTimeoutMS: 30000,
-            keepAlive: true
+            connectTimeoutMS: 30000
         });
         console.log("MongoDB 연결 성공");
     } catch (err) {
@@ -43,13 +42,5 @@ mongoose.connection.on('disconnected', () => {
 const port = process.env.PORT || 8000;
 const server = app.listen(port, () => {
     console.log(`서버가 ${port}번 포트에서 실행중입니다.`);
-});
-
-// 예기치 않은 에러 처리
-process.on('unhandledRejection', (err) => {
-    console.error('처리되지 않은 거부:', err);
-    server.close(() => {
-        process.exit(1);
-    });
 });
 

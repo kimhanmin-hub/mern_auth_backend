@@ -8,16 +8,22 @@ const db = process.env.DB;
 
 const connectDB = async () => {
     try {
+        if (mongoose.connection.readyState === 1) {
+            console.log("이미 MongoDB에 연결되어 있습니다.");
+            return;
+        }
+        
         await mongoose.connect(db, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             serverSelectionTimeoutMS: 30000,
             socketTimeoutMS: 45000,
+            connectTimeoutMS: 30000,
+            keepAlive: true
         });
         console.log("MongoDB 연결 성공");
     } catch (err) {
         console.error("MongoDB 연결 실패:", err);
-        // 5초 후 재시도
         setTimeout(connectDB, 5000);
     }
 };

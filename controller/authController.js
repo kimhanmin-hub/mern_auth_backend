@@ -23,9 +23,10 @@ const createSendToken = (user, statusCode, res, message) => {
         expires: new Date(
             Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
         ),
-        httpOnly: true, //JS로 쿠키 접근 방지 
-        secure: process.env.NODE_ENV === 'production', // HTTPS에서만 작동
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 배포 환경에서는 동일 사이트 정책 적용
+        httpOnly: true,
+        secure: true, // HTTPS 필수
+        sameSite: 'none', // cross-site 쿠키 허용
+        domain: '.vercel.app' // Vercel 도메인
     };
     // 쿠키에 토큰 저장
     res.cookie("token", token, cookieOptions);

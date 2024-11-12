@@ -13,9 +13,12 @@ app.use(
     cors({
     origin: [
         "http://localhost:3000",
-        "https://mern-auth-frontend-phi.vercel.app",
+        "https://mern-auth-frontend-phi.vercel.app"
     ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    exposedHeaders: ['set-cookie']
 })
 );
 

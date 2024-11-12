@@ -11,8 +11,9 @@ const connectDB = async () => {
         console.log('MongoDB 연결 시도 중...');
         console.log('DB 연결 문자열 확인:', process.env.DB ? '설정됨' : '설정되지 않음');
         
-        if (!process.env.DB) {
-            throw new Error('MongoDB 연결 문자열이 설정되지 않았습니다.');
+        if (!process.env.DB || !process.env.DB.includes('mongodb+srv://')) {
+            console.error('잘못된 MongoDB 연결 문자열:', process.env.DB);
+            throw new Error('유효하지 않은 MongoDB 연결 문자열');
         }
 
         if (mongoose.connection.readyState === 1) {
@@ -23,10 +24,12 @@ const connectDB = async () => {
         await mongoose.connect(process.env.DB, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 60000,
-            socketTimeoutMS: 45000,
-            connectTimeoutMS: 60000,
-            heartbeatFrequencyMS: 30000
+            serverSelectionTimeoutMS: 30000,
+            socketTimeoutMS: 30000,
+            connectTimeoutMS: 30000,
+            heartbeatFrequencyMS: 15000,
+            retryWrites: true,
+            w: 'majority'
         });
         console.log("MongoDB 연결 성공");
     } catch (err) {
@@ -35,7 +38,7 @@ const connectDB = async () => {
             message: err.message,
             code: err.code
         });
-        setTimeout(connectDB, 5000);
+        process.exit(1);
     }
 };
 

@@ -13,7 +13,7 @@ app.use(
     cors({
     origin: [
         "http://localhost:3000",
-        "https://mern-auth-frontend-phi.vercel.app"
+        "https://mern-auth-frontend-ten.vercel.app"
     ],
     credentials: true,
 })

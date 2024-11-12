@@ -36,9 +36,10 @@ const connectDB = async () => {
         console.error("MongoDB 연결 실패. 상세 에러:", {
             name: err.name,
             message: err.message,
-            code: err.code
+            code: err.code,
+            connectionState: mongoose.connection.readyState
         });
-        process.exit(1);
+        setTimeout(connectDB, 5000);
     }
 };
 
